@@ -1,0 +1,53 @@
+{
+  "package": "com.application.watch.demo",
+  "name": "AI多传感融合健康陪伴智能手表",
+  "versionName": "1.0.0",
+  "versionCode": 1,
+  "minPlatformVersion": 1000,
+  "icon": "/common/logo.png",
+  "deviceTypeList": [
+    "watch"
+  ],
+  "permissions": [
+    {
+      "name": "hapjs.permission.HEALTH"
+    }
+  ],
+  "features": [
+    {
+      "name": "system.router"
+    },
+    {
+      "name": "service.health"
+    },
+    {
+      "name": "system.storage"
+    }
+  ],
+  "config": {
+    "logLevel": "log",
+    "designWidth": "device-width",
+    "background": {
+      "features": [
+        "service.health"
+      ]
+    }
+  },
+  "router": {
+    "entry": "pages/index",
+    "pages": {
+      "pages/index": {
+        "component": "index"
+      },
+      "pages/detail": {
+        "component": "detail"
+      },
+      "pages/report": {
+        "component": "report"
+      },
+      "pages/about": {
+        "component": "about"
+      }
+    }
+  }
+}
