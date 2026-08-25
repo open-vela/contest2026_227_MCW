@@ -1,0 +1,11 @@
+<script>
+import router from "@system.router"
+export default {
+  methods:{
+    goHome(){
+      router.push({uri:"/pages/index/index"})
+    }
+  }
+}
+</script>
+

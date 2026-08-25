@@ -1,0 +1,328 @@
+<template>
+  <div class="page">
+    <text class="title">
+      AI健康陪伴手表
+    </text>
+
+    <div class="data-card">
+      <text class="label-text">
+        ❤️ 心率
+      </text>
+      <div class="data-right">
+        <text class="data-text">
+          {{heartRate}} <text class="data-unit">bpm</text>
+        </text>
+        <text class="status-tag {{heartStatus}}">
+          {{heartStatusText}}
+        </text>
+      </div>
+    </div>
+
+    <div class="data-card">
+      <text class="label-text">
+        🚶 步数
+      </text>
+      <text class="data-text">
+        {{steps}} <text class="data-unit">步</text>
+      </text>
+    </div>
+
+    <div class="data-card">
+      <text class="label-text">
+        😴 睡眠
+      </text>
+      <text class="data-text">
+        {{sleepDuration}} <text class="data-unit">小时</text>
+      </text>
+    </div>
+
+    <div class="data-card">
+      <text class="label-text">
+        🏃 状态
+      </text>
+      <text class="data-text">
+        {{sportIntensity}}
+      </text>
+    </div>
+
+    <div class="ai-card">
+      <text class="ai-label">
+        💡 AI 健康建议
+      </text>
+      <text class="ai-text">
+        {{aiSuggestion}}
+      </text>
+    </div>
+
+    <div class="button-card detail-btn" @click="goDetail">
+      <text class="button-text">
+        查询健康详情
+      </text>
+    </div>
+
+    <div class="button-card report-btn" @click="goReport">
+      <text class="button-text">
+        查看健康报告
+      </text>
+    </div>
+
+    <div class="button-card refresh-btn" @click="refreshData">
+      <text class="button-text">
+        手动刷新健康数据
+      </text>
+    </div>
+
+    <div class="button-card about-btn" @click="goAbout">
+      <text class="button-text">关于应用</text>
+    </div>
+  </div>
+</template>
+
+<script>
+import healthMock from "../../common/health.js"
+import router from '@system.router'
+
+export default {
+  data: {
+    heartRate: 0,
+    steps: 0,
+    sleepDuration: 0,
+    sleepQuality: 0,
+    sportIntensity: "",
+    fatigueTip: "",
+    healthScore: 0,
+    aiSuggestion: "正在分析健康状态",
+    heartTimer: null,
+    baseHeartRate: 0
+  },
+
+  computed: {
+    heartStatus() {
+      if (this.heartRate < 60) return 'slow'
+      if (this.heartRate > 100) return 'fast'
+      return 'normal'
+    },
+    heartStatusText() {
+      if (this.heartRate < 60) return '偏慢'
+      if (this.heartRate > 100) return '偏快'
+      return '正常'
+    }
+  },
+
+  onInit(){
+    healthMock.initApp((data)=>{
+      this.heartRate = data.heartRate
+      this.baseHeartRate = data.heartRate
+      this.steps = data.steps
+      this.sleepDuration = data.sleepDuration
+      this.sleepQuality = data.sleepQuality
+      this.sportIntensity = data.sportIntensity
+      this.fatigueTip = data.fatigueTip
+      this.healthScore = data.healthScore
+      this.aiSuggestion = data.aiSuggestion
+      this.startHeartBeat()
+    })
+  },
+
+  onDestroy(){
+    if(this.heartTimer){
+      clearInterval(this.heartTimer)
+    }
+  },
+
+  startHeartBeat(){
+    if(this.heartTimer){
+      clearInterval(this.heartTimer)
+    }
+    this.heartTimer = setInterval(()=>{
+      let offset = Math.floor(Math.random() * 7) - 3
+      let newRate = this.baseHeartRate + offset
+      if(newRate < 60) newRate = 60
+      if(newRate > 100) newRate = 100
+      this.heartRate = newRate
+    }, 2000)
+  },
+
+  refreshData(){
+    healthMock.updateData((data)=>{
+      this.steps = data.steps
+      this.sleepDuration = data.sleepDuration
+      this.sleepQuality = data.sleepQuality
+      this.sportIntensity = data.sportIntensity
+      this.fatigueTip = data.fatigueTip
+      this.healthScore = data.healthScore
+      this.aiSuggestion = data.aiSuggestion
+      // 刷新同步更新心率基准值
+      this.baseHeartRate = data.heartRate
+      this.heartRate = data.heartRate
+    })
+  },
+
+  goDetail(){
+    let data = {
+      heartRate:this.heartRate,
+      steps:this.steps,
+      sleepDuration: this.sleepDuration,
+      sleepQuality: this.sleepQuality,
+      sportIntensity: this.sportIntensity,
+      fatigueTip: this.fatigueTip,
+      healthScore:this.healthScore,
+      aiSuggestion:this.aiSuggestion
+    }
+    router.push({
+      uri:"/pages/detail",
+      params: { healthData: JSON.stringify(data) }
+    })
+  },
+
+  goReport(){
+    router.push({ uri:"/pages/report" })
+  },
+
+  goAbout() {
+    router.push({ uri: "/pages/about" })
+  }
+}
+</script>
+
+<style>
+.page {
+  width: 100%;
+  height: 100%;
+  flex-direction: column;
+  align-items: center;
+  background-color: #000000;
+  padding-left: 50cap;
+  padding-right: 50cap;
+  padding-top: 12px;
+  padding-bottom: 12px;
+}
+
+.title {
+  font-size: 22px;
+  color: #ffffff;
+  font-weight: bold;
+  margin-top: 8px;
+  margin-bottom: 12px;
+  text-align: center;
+}
+
+.data-card {
+  width: 100%;
+  height: 50px;
+  background-color: #1a1a1a;
+  border-radius: 10px;
+  margin-bottom: 8px;
+  flex-direction: row;
+  justify-content: space-between;
+  align-items: center;
+  padding-left: 10px;
+  padding-right: 10px;
+}
+
+.label-text {
+  font-size: 12px;
+  color: #9ca3af;
+  font-weight: 400;
+}
+
+.data-right {
+  flex-direction: row;
+  align-items: center;
+}
+
+.data-text {
+  font-size: 16px;
+  color: #ffffff;
+  font-weight: 600;
+}
+
+.data-unit {
+  font-size: 10px;
+  color: #6b7280;
+  font-weight: 400;
+  margin-left: 2px;
+}
+
+.status-tag {
+  font-size: 10px;
+  padding: 2px 6px;
+  border-radius: 8px;
+  margin-left: 6px;
+}
+
+.status-tag.normal {
+  color: #22c55e;
+  background-color: rgba(34, 197, 94, 0.15);
+}
+
+.status-tag.fast {
+  color: #ef4444;
+  background-color: rgba(239, 68, 68, 0.15);
+}
+
+.status-tag.slow {
+  color: #3b82f6;
+  background-color: rgba(59, 130, 246, 0.15);
+}
+
+.ai-card {
+  width: 100%;
+  background-color: #0f2b1a;
+  border-radius: 10px;
+  margin-top: 2px;
+  margin-bottom: 10px;
+  flex-direction: column;
+  justify-content: center;
+  align-items: flex-start;
+  padding: 10px 12px;
+}
+
+.ai-label {
+  font-size: 12px;
+  color: #88d8a8;
+  font-weight: 600;
+  margin-bottom: 4px;
+}
+
+.ai-text {
+  font-size: 11px;
+  color: #ffffff;
+  line-height: 16px;
+}
+
+.button-card {
+  width: 100%;
+  height: 40px;
+  border-radius: 20px;
+  justify-content: center;
+  align-items: center;
+  margin-bottom: 7px;
+}
+
+.button-text {
+  font-size: 14px;
+  color: #ffffff;
+  font-weight: 500;
+}
+
+.detail-btn {
+  background: linear-gradient(135deg, #ef4444, #dc2626);
+  margin-top: 4px;
+}
+
+.report-btn {
+  background: linear-gradient(135deg, #f97316, #ea580c);
+}
+
+.refresh-btn {
+  background: linear-gradient(135deg, #22c55e, #16a34a);
+}
+
+.about-btn {
+  background: linear-gradient(135deg, #52525b, #3f3f46);
+  margin-top: 4px;
+}
+
+
+</style>
