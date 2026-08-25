@@ -1,0 +1,11 @@
+{
+  "sessions": [
+    {
+      "session_id": "001",
+      "tool": "doubao",
+      "date": "2026-08-25",
+      "total_events": 10,
+      "description": "项目UI开发、传感器对接与Git提交全流程辅助"
+    }
+  ]
+}
